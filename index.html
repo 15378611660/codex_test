@@ -6,7 +6,6 @@
   <title>清简笔记</title>
   <style>
     :root {
-<<<<<<< HEAD
       color-scheme: light;
       --bg: #f4fbf6;
 =======
@@ -21,20 +20,6 @@
       --accent-strong: #1d4ed8;
       --danger: #b42318;
       --shadow: 0 16px 34px rgba(37, 99, 235, 0.12);
-    }
-
-    [data-theme="dark"] {
-      color-scheme: dark;
-      --bg: #121614;
-      --surface: #1a211d;
-      --surface-2: #26312a;
-      --ink: #edf7f0;
-      --muted: #a9baaf;
-      --line: #344238;
-      --accent: #4ade80;
-      --accent-strong: #22c55e;
-      --danger: #ef6f61;
-      --shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
     }
 
     * { box-sizing: border-box; }
@@ -161,11 +146,6 @@
       background: #e6f0ff;
     }
 
-    [data-theme="dark"] .note-item.active {
-      border-color: rgba(74, 222, 128, 0.44);
-      background: #24382b;
-    }
-
     .note-title {
       overflow: hidden;
       margin-bottom: 6px;
@@ -198,73 +178,11 @@
 
     .empty-list { padding: 36px 18px; }
 
-    .sidebar-foot {
-      margin-top: auto;
-      padding: 12px 10px;
-      border-top: 1px solid var(--line);
-      background: var(--surface);
-    }
-
-    .theme-toggle {
-      display: flex;
-      width: 100%;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 10px;
-      cursor: pointer;
-      background: var(--surface-2);
-      color: var(--ink);
-    }
-
-    .theme-toggle:hover {
-      border-color: var(--accent);
-    }
-
-    .theme-label {
-      overflow: hidden;
-      font-weight: 700;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .theme-switch {
-      position: relative;
-      flex: 0 0 auto;
-      width: 46px;
-      height: 24px;
-      border-radius: 999px;
-      background: var(--muted);
-    }
-
-    .theme-switch::after {
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--surface);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      content: "";
-      transition: transform 160ms ease;
-    }
-
-    [data-theme="dark"] .theme-switch::after {
-      transform: translateX(22px);
-    }
-
     .editor {
       display: flex;
       min-width: 0;
       flex-direction: column;
-<<<<<<< HEAD
       background: var(--bg);
-=======
-      background: #f8fbff;
->>>>>>> parent of 30bb6ca (turn_to_green)
     }
 
     .editor-bar {
@@ -276,7 +194,7 @@
       min-height: 66px;
       padding: 14px 24px;
       border-bottom: 1px solid var(--line);
-      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      background: rgba(255, 255, 255, 0.88);
     }
 
     .save-state {
@@ -311,7 +229,6 @@
       border-radius: 8px;
       padding: 8px 10px;
       outline: none;
-      background: var(--surface);
       color: var(--ink);
       font-size: 30px;
       font-weight: 800;
@@ -327,7 +244,6 @@
       border-radius: 8px;
       padding: 12px 10px;
       outline: none;
-      background: var(--surface);
       color: var(--ink);
       line-height: 1.75;
     }
@@ -351,7 +267,6 @@
       }
 
       .sidebar-head { padding: 16px; }
-      .sidebar-foot { padding: 8px 10px; }
       .tools { grid-template-columns: 1fr; }
       .primary-btn { width: 100%; }
       .editor-bar {
@@ -381,12 +296,6 @@
         </div>
       </header>
       <section class="note-list" id="noteList" aria-live="polite"></section>
-      <footer class="sidebar-foot">
-        <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">
-          <span class="theme-label" id="themeLabel">浅色模式</span>
-          <span class="theme-switch" aria-hidden="true"></span>
-        </button>
-      </footer>
     </aside>
 
     <section class="editor" aria-label="笔记内容">
@@ -407,7 +316,6 @@
 
   <script>
     const STORAGE_KEY = "simple-notes-html-v2";
-    const THEME_KEY = "simple-notes-theme";
     const starterNotes = [
       {
         id: crypto.randomUUID(),
@@ -433,19 +341,15 @@
     const searchInput = document.querySelector("#searchInput");
     const newNoteBtn = document.querySelector("#newNoteBtn");
     const deleteBtn = document.querySelector("#deleteBtn");
-    const themeToggle = document.querySelector("#themeToggle");
-    const themeLabel = document.querySelector("#themeLabel");
     const editorMain = document.querySelector("#editorMain");
     const saveState = document.querySelector("#saveState");
     const editorTemplate = document.querySelector("#editorTemplate");
 
-    applyTheme(loadTheme());
     state.selectedId = state.notes[0]?.id || null;
     render();
 
     newNoteBtn.addEventListener("click", createNote);
     deleteBtn.addEventListener("click", deleteSelectedNote);
-    themeToggle.addEventListener("click", toggleTheme);
     searchInput.addEventListener("input", (event) => {
       state.query = event.target.value.trim().toLowerCase();
       renderList();
@@ -459,24 +363,6 @@
         console.warn("读取本地笔记失败，已载入默认笔记。", error);
       }
       return starterNotes;
-    }
-
-    function loadTheme() {
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
-      return "light";
-    }
-
-    function applyTheme(theme) {
-      document.documentElement.dataset.theme = theme;
-      themeToggle.setAttribute("aria-pressed", String(theme === "dark"));
-      themeLabel.textContent = theme === "dark" ? "深色模式" : "浅色模式";
-      localStorage.setItem(THEME_KEY, theme);
-    }
-
-    function toggleTheme() {
-      const currentTheme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-      applyTheme(currentTheme === "dark" ? "light" : "dark");
     }
 
     function persistNotes() {
